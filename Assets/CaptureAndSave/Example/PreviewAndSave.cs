@@ -11,7 +11,7 @@ public class PreviewAndSave : MonoBehaviour {
 
 	void Start()
 	{
-		snapShot = GameObject.FindObjectOfType<CaptureAndSave>();
+		snapShot = FindObjectOfType<CaptureAndSave>();
 	}
 
 	void OnEnable()

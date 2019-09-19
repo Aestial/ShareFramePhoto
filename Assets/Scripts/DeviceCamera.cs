@@ -16,8 +16,9 @@ public class DeviceCamera : MonoBehaviour
     void Start()
     {
         defaultBackground = feedTarget.texture;
+        isFrontFace |= Application.isEditor;
         PrintDevices();
-        StartCamera();
+        StartCamera();        
     }
 
     private void StartCamera()
@@ -33,7 +34,9 @@ public class DeviceCamera : MonoBehaviour
         {
             if (devices[i].isFrontFacing == isFrontFace)
             {
-                camTexture = new WebCamTexture(devices[i].name, Screen.width*2, Screen.height*2);
+                //Rect r = feedTarget.rectTransform.rect; // Same as in CaptureAndSavePhoto.cs
+                //Debug.Log("Feed target rect: " + r);
+                camTexture = new WebCamTexture(devices[i].name, 1920, 1080, 60);
             }
         }
         if (camTexture == null)
@@ -43,6 +46,7 @@ public class DeviceCamera : MonoBehaviour
         }
         camTexture.Play();
         feedTarget.texture = camTexture;
+        //feedTarget.material.SetTextureScale("_Texture", new Vector2(1f, 1f));
         isCamAvailable = true;
     }
 
@@ -58,13 +62,18 @@ public class DeviceCamera : MonoBehaviour
         if (!isCamAvailable)
             return;
 
+        Debug.Log("Camera feed width: " + camTexture.width + ", height: " + camTexture.height);
+
         float ratio = (float)camTexture.width / (float)camTexture.height;
         fitter.aspectRatio = ratio;
 
+        float scaleX = isFrontFace ? -1f : 1f;
         float scaleY = camTexture.videoVerticallyMirrored ? -1f : 1f;
-        feedTarget.rectTransform.localScale = new Vector3(1f, scaleY, 1f);
+        feedTarget.rectTransform.localScale = new Vector3(scaleX, scaleY, 1f);
 
         float rotAngle = -camTexture.videoRotationAngle;
         feedTarget.rectTransform.localEulerAngles = new Vector3(0, 0, rotAngle);
+
+        feedTarget.material.SetTextureScale("_Texture", new Vector2(1f, 1f));
     }
 }
